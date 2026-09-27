@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sweet Moments</title>
+        <style>
+            :root {
+                --rose: #ff7ea8;
+                --pink: #ffb6c8;
+                --blush: #ffd9e6;
+                --lavender: #d9c5ff;
+                --white: #fffafc;
+                --text: #6d3a52;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: Arial, Helvetica, sans-serif;
+                color: var(--text);
+                background:
+                    radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), transparent 35%),
+                    radial-gradient(circle at bottom right, rgba(255, 182, 200, 0.6), transparent 30%),
+                    linear-gradient(135deg, #fff0f5 0%, #ffe4ef 30%, #f9d5e5 50%, #e9d9ff 100%);
+                overflow: hidden;
+                position: relative;
+            }
+
+            body::before,
+            body::after {
+                content: "";
+                position: absolute;
+                width: 240px;
+                height: 240px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.25);
+                filter: blur(20px);
+            }
+
+            body::before {
+                top: 5%;
+                left: 10%;
+            }
+
+            body::after {
+                bottom: 8%;
+                right: 10%;
+            }
+
+            .heart {
+                position: absolute;
+                width: 22px;
+                height: 22px;
+                background: rgba(255, 126, 168, 0.55);
+                transform: rotate(-45deg);
+                border-radius: 4px;
+                animation: float 4s ease-in-out infinite;
+            }
+
+            .heart::before,
+            .heart::after {
+                content: "";
+                position: absolute;
+                width: 22px;
+                height: 22px;
+                background: rgba(255, 126, 168, 0.55);
+                border-radius: 50%;
+            }
+
+            .heart::before {
+                top: -11px;
+                left: 0;
+            }
+
+            .heart::after {
+                left: 11px;
+                top: 0;
+            }
+
+            .heart.one { top: 12%; left: 18%; animation-delay: 0s; }
+            .heart.two { top: 18%; right: 20%; animation-delay: 0.8s; }
+            .heart.three { bottom: 18%; left: 25%; animation-delay: 1.4s; }
+            .heart.four { bottom: 14%; right: 18%; animation-delay: 2.1s; }
+
+            .container {
+                position: relative;
+                z-index: 1;
+                text-align: center;
+                background: rgba(255, 255, 255, 0.28);
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                backdrop-filter: blur(10px);
+                box-shadow: 0 25px 60px rgba(145, 86, 117, 0.18);
+                border-radius: 30px;
+                padding: 54px 42px;
+                max-width: 540px;
+                width: min(86vw, 540px);
+            }
+
+            h1 {
+                margin: 0 0 18px;
+                font-size: clamp(2.2rem, 4vw, 3.6rem);
+                letter-spacing: 0.04em;
+                color: #8a425f;
+            }
+
+            p {
+                margin: 0 0 28px;
+                font-size: 1.05rem;
+                color: rgba(109, 58, 82, 0.8);
+            }
+
+            .cta {
+                display: inline-block;
+                padding: 18px 40px;
+                border: none;
+                border-radius: 999px;
+                font-size: 1.1rem;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-transform: lowercase;
+                text-decoration: none;
+                color: var(--white);
+                background: linear-gradient(135deg, var(--rose), #ff8ab0 48%, #dfa0ff 100%);
+                box-shadow: 0 18px 35px rgba(255, 126, 168, 0.4);
+                transition: transform 0.25s ease, box-shadow 0.25s ease;
+                cursor: pointer;
+            }
+
+            .cta:hover {
+                transform: translateY(-2px) scale(1.02);
+                box-shadow: 0 22px 40px rgba(255, 126, 168, 0.5);
+            }
+
+            .cta:focus-visible {
+                outline: 4px solid rgba(255, 255, 255, 0.9);
+                outline-offset: 4px;
+                box-shadow: 0 0 0 10px rgba(255, 126, 168, 0.2), 0 22px 40px rgba(255, 126, 168, 0.5);
+            }
+
+            .cta:active {
+                transform: translateY(0);
+            }
+
+            .modal-overlay {
+                position: fixed;
+                inset: 0;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(93, 44, 67, 0.32);
+                backdrop-filter: blur(4px);
+                z-index: 10;
+            }
+
+            .modal-overlay.open {
+                display: flex;
+            }
+
+            .notepad {
+                position: relative;
+                width: min(90vw, 420px);
+                background: #fffdf7;
+                border: 2px solid rgba(255, 172, 197, 0.8);
+                border-radius: 18px;
+                box-shadow: 0 18px 40px rgba(130, 79, 98, 0.2);
+                padding: 28px 24px 22px;
+                background-image: linear-gradient(to bottom, transparent 0, transparent 28px, rgba(255, 168, 196, 0.18) 29px);
+                background-size: 100% 30px;
+            }
+
+            .notepad::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 20px;
+                width: 120px;
+                height: 14px;
+                background: rgba(255, 192, 214, 0.7);
+                border-radius: 0 0 12px 12px;
+            }
+
+            .modal-title {
+                margin: 26px 0 18px;
+                text-align: center;
+                font-size: clamp(1.5rem, 3vw, 2.2rem);
+                color: #8b4468;
+            }
+
+            .choice-row {
+                display: flex;
+                justify-content: center;
+                gap: 14px;
+                margin-top: 10px;
+            }
+
+            .choice-btn {
+                border: none;
+                border-radius: 999px;
+                padding: 12px 28px;
+                font-size: 1rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: transform 0.2s ease, filter 0.2s ease;
+            }
+
+            .choice-btn:hover,
+            .choice-btn:focus-visible {
+                transform: translateY(-1px) scale(1.02);
+                filter: brightness(1.03);
+            }
+
+            .choice-btn.yes {
+                background: linear-gradient(135deg, #ff7db3, #ff9ec0);
+                color: white;
+            }
+
+            .choice-btn.no {
+                background: #f4d8e6;
+                color: #7d4963;
+            }
+
+            .choice-btn.small {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .heart-burst-overlay {
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                overflow: hidden;
+                z-index: 999;
+                opacity: 0;
+            }
+
+            .heart-burst-overlay.active {
+                opacity: 1;
+            }
+
+            .burst-heart {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 18px;
+                height: 18px;
+                background: rgba(255, 126, 168, 0.9);
+                transform: rotate(-45deg);
+                border-radius: 4px;
+                opacity: 0;
+                animation: burst 1s ease-out forwards;
+            }
+
+            .burst-heart::before,
+            .burst-heart::after {
+                content: "";
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                background: rgba(255, 126, 168, 0.9);
+                border-radius: 50%;
+            }
+
+            .burst-heart::before {
+                top: -9px;
+                left: 0;
+            }
+
+            .burst-heart::after {
+                left: 9px;
+                top: 0;
+            }
+
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border: 0;
+            }
+
+            @keyframes float {
+                0%, 100% {
+                    transform: rotate(-45deg) translateY(0px);
+                    opacity: 0.8;
+                }
+                50% {
+                    transform: rotate(-45deg) translateY(-12px);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes burst {
+                0% {
+                    opacity: 1;
+                    transform: translate(0, 0) scale(0.4) rotate(-45deg);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(var(--x), var(--y)) scale(1.2) rotate(-45deg);
+                }
+            }
+
+            @media (max-width: 500px) {
+                .container {
+                    padding: 42px 24px;
+                }
+
+                h1 {
+                    font-size: 2rem;
+                }
+
+                .choice-row {
+                    flex-direction: column;
+                }
+
+                .choice-btn {
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="heart one"></div>
+        <div class="heart two"></div>
+        <div class="heart three"></div>
+        <div class="heart four"></div>
+
+        <main class="container">
+            <h1>para muha hihi</h1>
+            <button class="cta" type="button" aria-haspopup="dialog" aria-controls="valentineModal" id="openModalBtn">i clik choy</button>
+        </main>
+
+        <div class="modal-overlay" id="valentineModal" aria-hidden="true">
+            <div class="notepad" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+                <h2 class="modal-title" id="modalTitle">will you be my valentine</h2>
+                <div class="choice-row">
+                    <button class="choice-btn yes" type="button" aria-label="Yes, I will be your valentine">yes</button>
+                    <button class="choice-btn no" type="button" aria-label="No, not this time">no</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="sureModal" aria-hidden="true">
+            <div class="notepad" role="dialog" aria-modal="true" aria-labelledby="sureTitle">
+                <h2 class="modal-title" id="sureTitle">are you sure</h2>
+                <div class="choice-row">
+                    <button class="choice-btn yes small" type="button" aria-label="Yes, I'm sure">yes</button>
+                    <button class="choice-btn no small" type="button" aria-label="No, I am not sure">no</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="soSureModal" aria-hidden="true">
+            <div class="notepad" role="dialog" aria-modal="true" aria-labelledby="soSureTitle">
+                <h2 class="modal-title" id="soSureTitle">so are you going to be my valentine</h2>
+                <div class="choice-row">
+                    <button class="choice-btn yes small" type="button" aria-label="Yes, I am going to be your valentine">yes</button>
+                    <button class="choice-btn no small" type="button" aria-label="No, not yet">no</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="reallySureModal" aria-hidden="true">
+            <div class="notepad" role="dialog" aria-modal="true" aria-labelledby="reallySureTitle">
+                <h2 class="modal-title" id="reallySureTitle">are you really sure</h2>
+                <div class="choice-row">
+                    <button class="choice-btn yes small" type="button" aria-label="Yes, I'm really sure">yes</button>
+                    <button class="choice-btn no small" type="button" aria-label="No, I'm not really sure">no</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="understandModal" aria-hidden="true">
+            <div class="notepad" role="dialog" aria-modal="true" aria-labelledby="understandTitle">
+                <h2 class="modal-title" id="understandTitle">okay, i understand</h2>
+                <div class="choice-row">
+                    <button class="choice-btn yes small" type="button" aria-label="Okay, I understand">okay</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="sikeModal" aria-hidden="true">
+            <div class="notepad" role="dialog" aria-modal="true" aria-labelledby="sikeTitle">
+                <h2 class="modal-title" id="sikeTitle">sike, i got yo ass, you will be my valentine wether you like it or not</h2>
+                <div class="choice-row">
+                    <button class="choice-btn yes small" type="button" aria-label="What">WHAT????</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="heart-burst-overlay" id="heartBurst" aria-hidden="true"></div>
+
+        <script>
+            const openModalBtn = document.getElementById('openModalBtn');
+            const modal = document.getElementById('valentineModal');
+            const sureModal = document.getElementById('sureModal');
+            const soSureModal = document.getElementById('soSureModal');
+            const reallySureModal = document.getElementById('reallySureModal');
+            const understandModal = document.getElementById('understandModal');
+            const sikeModal = document.getElementById('sikeModal');
+            const heartBurst = document.getElementById('heartBurst');
+            const noBtn = document.querySelector('#valentineModal .choice-btn.no');
+            const sureNoBtn = document.querySelector('#sureModal .choice-btn.no');
+            const sureYesBtn = document.querySelector('#sureModal .choice-btn.yes');
+            const soSureNoBtn = document.querySelector('#soSureModal .choice-btn.no');
+            const soSureYesBtn = document.querySelector('#soSureModal .choice-btn.yes');
+            const reallySureNoBtn = document.querySelector('#reallySureModal .choice-btn.no');
+            const reallySureYesBtn = document.querySelector('#reallySureModal .choice-btn.yes');
+            const understandBtn = document.querySelector('#understandModal .choice-btn.yes');
+            const sikeBtn = document.querySelector('#sikeModal .choice-btn.yes');
+
+            function triggerHeartBurst() {
+                heartBurst.classList.add('active');
+                heartBurst.innerHTML = '';
+
+                for (let i = 0; i < 26; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'burst-heart';
+                    const angle = (Math.PI * 2 * i) / 26;
+                    const distance = 70 + Math.random() * 120;
+                    const x = Math.cos(angle) * distance;
+                    const y = Math.sin(angle) * distance;
+                    heart.style.setProperty('--x', x + 'px');
+                    heart.style.setProperty('--y', y + 'px');
+                    heart.style.animationDelay = (i * 0.02) + 's';
+                    heartBurst.appendChild(heart);
+                }
+
+                setTimeout(() => {
+                    heartBurst.classList.remove('active');
+                    heartBurst.innerHTML = '';
+                }, 1100);
+            }
+
+            function openModal() {
+                modal.classList.add('open');
+                modal.setAttribute('aria-hidden', 'false');
+                const firstButton = document.querySelector('#valentineModal .choice-btn.yes');
+                firstButton.focus();
+            }
+
+            function closeModal() {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+                sureModal.classList.remove('open');
+                sureModal.setAttribute('aria-hidden', 'true');
+                soSureModal.classList.remove('open');
+                soSureModal.setAttribute('aria-hidden', 'true');
+                reallySureModal.classList.remove('open');
+                reallySureModal.setAttribute('aria-hidden', 'true');
+                understandModal.classList.remove('open');
+                understandModal.setAttribute('aria-hidden', 'true');
+                sikeModal.classList.remove('open');
+                sikeModal.setAttribute('aria-hidden', 'true');
+                openModalBtn.focus();
+            }
+
+            function openSureModal() {
+                sureModal.classList.add('open');
+                sureModal.setAttribute('aria-hidden', 'false');
+                sureYesBtn.focus();
+            }
+
+            function openSoSureModal() {
+                soSureModal.classList.add('open');
+                soSureModal.setAttribute('aria-hidden', 'false');
+                soSureYesBtn.focus();
+            }
+
+            function openReallySureModal() {
+                reallySureModal.classList.add('open');
+                reallySureModal.setAttribute('aria-hidden', 'false');
+                reallySureYesBtn.focus();
+            }
+
+            function openUnderstandModal() {
+                understandModal.classList.add('open');
+                understandModal.setAttribute('aria-hidden', 'false');
+                understandBtn.focus();
+            }
+
+            function openSikeModal() {
+                sikeModal.classList.add('open');
+                sikeModal.setAttribute('aria-hidden', 'false');
+                sikeBtn.focus();
+            }
+
+            openModalBtn.addEventListener('click', openModal);
+
+            document.querySelector('#valentineModal .choice-btn.yes').addEventListener('click', function() {
+                closeModal();
+                triggerHeartBurst();
+                setTimeout(() => {
+                    window.location.href = 'letter.html?from=index';
+                }, 700);
+            });
+
+            noBtn.addEventListener('click', function() {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+                openSureModal();
+            });
+
+            sureYesBtn.addEventListener('click', function() {
+                sureModal.classList.remove('open');
+                sureModal.setAttribute('aria-hidden', 'true');
+                openReallySureModal();
+            });
+
+            sureNoBtn.addEventListener('click', function() {
+                sureModal.classList.remove('open');
+                sureModal.setAttribute('aria-hidden', 'true');
+                openSoSureModal();
+            });
+
+            soSureYesBtn.addEventListener('click', function() {
+                soSureModal.classList.remove('open');
+                soSureModal.setAttribute('aria-hidden', 'true');
+                triggerHeartBurst();
+                setTimeout(() => {
+                    window.location.href = 'letter.html?from=index';
+                }, 700);
+            });
+
+            soSureNoBtn.addEventListener('click', function() {
+                soSureModal.classList.remove('open');
+                soSureModal.setAttribute('aria-hidden', 'true');
+                openSureModal();
+            });
+
+            reallySureYesBtn.addEventListener('click', function() {
+                reallySureModal.classList.remove('open');
+                reallySureModal.setAttribute('aria-hidden', 'true');
+                openUnderstandModal();
+            });
+
+            reallySureNoBtn.addEventListener('click', function() {
+                reallySureModal.classList.remove('open');
+                reallySureModal.setAttribute('aria-hidden', 'true');
+                openSoSureModal();
+            });
+
+            understandBtn.addEventListener('click', function() {
+                understandModal.classList.remove('open');
+                understandModal.setAttribute('aria-hidden', 'true');
+                openSikeModal();
+            });
+
+            sikeBtn.addEventListener('click', function() {
+                sikeModal.classList.remove('open');
+                sikeModal.setAttribute('aria-hidden', 'true');
+                triggerHeartBurst();
+                setTimeout(() => {
+                    window.location.href = 'letter.html?from=index';
+                }, 700);
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if ((modal.classList.contains('open') || sureModal.classList.contains('open') || soSureModal.classList.contains('open') || reallySureModal.classList.contains('open') || understandModal.classList.contains('open') || sikeModal.classList.contains('open')) && event.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            sureModal.addEventListener('click', function(event) {
+                if (event.target === sureModal) {
+                    closeModal();
+                }
+            });
+
+            soSureModal.addEventListener('click', function(event) {
+                if (event.target === soSureModal) {
+                    closeModal();
+                }
+            });
+
+            reallySureModal.addEventListener('click', function(event) {
+                if (event.target === reallySureModal) {
+                    closeModal();
+                }
+            });
+
+            understandModal.addEventListener('click', function(event) {
+                if (event.target === understandModal) {
+                    closeModal();
+                }
+            });
+
+            sikeModal.addEventListener('click', function(event) {
+                if (event.target === sikeModal) {
+                    closeModal();
+                }
+            });
+        </script>
+    </body>
+</html>
